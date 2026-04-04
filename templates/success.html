@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تذكرتك الرقمية - المتحف المصري</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f4f1ea;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .ticket-container {
+            background: white;
+            width: 350px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 2px solid #d4af37;
+            position: relative;
+        }
+
+        /* الجزء العلوي للتذكرة */
+        .ticket-header {
+            background: #1a1a1a;
+            color: #d4af37;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px dashed #d4af37;
+        }
+
+        .ticket-header h2 { margin: 0; font-size: 1.5rem; }
+
+        /* محتوى التذكرة */
+        .ticket-body {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .user-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .ticket-id {
+            background: #fdf2d2;
+            color: #b8962e;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid #f1d592;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .qr-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            display: inline-block;
+            border-radius: 10px;
+        }
+
+        .footer-note {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 15px;
+        }
+
+        /* أزرار التحكم */
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-print { background: #d4af37; color: #fff; }
+        .btn-home { background: #eee; color: #333; }
+
+        @media print {
+            .actions { display: none; }
+            body { background: white; }
+            .ticket-container { box-shadow: none; border: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="ticket-container">
+        <div class="ticket-header">
+            <h2>تذكرة دخول المتحف</h2>
+            <small>EGYPTIAN MUSEUM TICKET</small>
+        </div>
+
+        <div class="ticket-body">
+            <div class="user-name">{{ name }}</div>
+            <div class="ticket-id">ID: {{ ticket_id }}</div>
+
+            <div class="info-row">
+                <span>عدد الأفراد:</span>
+                <strong>{{ count }}</strong>
+            </div>
+            <div class="info-row">
+                <span>إجمالي المبلغ:</span>
+                <strong>{{ total }} ج.م</strong>
+            </div>
+
+            <div class="qr-section">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TicketID:{{ ticket_id }}|Name:{{ name }}" alt="QR Code">
+            </div>
+
+            <p class="footer-note">يرجى إبراز الباركود عند بوابة الدخول</p>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button onclick="window.print()" class="btn btn-print">طباعة التذكرة 🖨️</button>
+        <a href="/" class="btn btn-home">العودة للرئيسية</a>
+    </div>
+</div>
+
+</body>
+</html>
