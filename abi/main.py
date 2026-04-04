@@ -8,11 +8,8 @@ import uuid
 
 app = FastAPI()
 
-
-
+# --- إعداد المسارات ---
 current_file_path = Path(__file__).resolve()
-
-
 
 if current_file_path.parent.name in ["api", "abi", "backend"]:
     BASE_DIR = current_file_path.parent.parent
@@ -22,21 +19,14 @@ else:
 templates_dir = BASE_DIR / "templates"
 static_dir = BASE_DIR / "static"
 
-
-print(f"--- Path Debugging ---")
-print(f"Base Directory: {BASE_DIR}")
-print(f"Templates Directory: {templates_dir}")
-print(f"Static Directory: {static_dir}")
-
-
+# تأكد من وجود مجلد static
 if not static_dir.exists():
-    print(f"⚠️ تحذير: مجلد static غير موجود في {static_dir}")
     static_dir.mkdir(parents=True, exist_ok=True)
 
 templates = Jinja2Templates(directory=str(templates_dir))
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
-
+# --- البيانات المؤقتة ---
 bookings_db = []
 artifacts_data = [
     {"name": "قناع توت عنخ آمون", "desc": "أشهر تحفة ذهبية في العالم القديم.", "image": "mask.jpg"},
@@ -44,7 +34,7 @@ artifacts_data = [
     {"name": "بردية آني", "desc": "نص جنائزي قديم من كتاب الموتى.", "image": "papyrus.jpg"}
 ]
 
-
+# --- الراوتس (Endpoints) ---
 
 @app.get('/favicon.ico', include_in_schema=False)
 async def favicon():
@@ -55,11 +45,11 @@ async def favicon():
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
+    # تم التصحيح: تمرير القاموس مباشرة
     return templates.TemplateResponse(
-        "index.html",  # ضع اسم الملف مباشرة
-        {"request": request, "artifacts": artifacts_data} # القاموس يحتوي على request وكل بياناتك
+        "index.html", 
+        {"request": request, "artifacts": artifacts_data}
     )
-
 
 @app.post("/booking", response_class=HTMLResponse)
 async def book_ticket(
@@ -68,23 +58,8 @@ async def book_ticket(
     ticket_type: str = Form(...),
     ticket_count: int = Form(...)
 ):
-    # ... (باقي كود الحسابات كما هو) ...
-
-    return templates.TemplateResponse(
-        "success.html", 
-        {
-            "request": request, # ضروري جداً
-            "name": full_name,
-            "ticket_id": ticket_id,
-            "total": total_price,
-            "count": ticket_count
-        }
-    )
-    
     prices = {"egyptian": 60, "foreign": 200, "student": 30}
     total_price = prices.get(ticket_type, 0) * ticket_count
-    
-   
     ticket_id = str(uuid.uuid4())[:8].upper()
 
     new_booking = {
@@ -97,10 +72,11 @@ async def book_ticket(
     }
     bookings_db.append(new_booking)
 
+    # تم التصحيح: تمرير القاموس مباشرة
     return templates.TemplateResponse(
-        request=request,
-        name="success.html",
-        context={
+        "success.html", 
+        {
+            "request": request,
             "name": full_name,
             "ticket_id": ticket_id,
             "total": total_price,
@@ -110,7 +86,8 @@ async def book_ticket(
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse(request=request, name="login.html", context={})
+    # تم التصحيح: تمرير القاموس مباشرة
+    return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login")
 async def login(username: str = Form(...), password: str = Form(...)):
@@ -120,7 +97,6 @@ async def login(username: str = Form(...), password: str = Form(...)):
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_panel(request: Request):
-   
     if request.query_params.get("auth") != "1":
         return RedirectResponse(url="/login", status_code=302)
     
@@ -128,10 +104,11 @@ async def admin_panel(request: Request):
     filtered_bookings = [b for b in bookings_db if search_query in b["الاسم"]] if search_query else bookings_db
     total_revenue = sum(b["الإجمالي"] for b in bookings_db)
     
+    # تم التصحيح: تمرير القاموس مباشرة
     return templates.TemplateResponse(
-        request=request,
-        name="admin.html",
-        context={
+        "admin.html", 
+        {
+            "request": request,
             "bookings": filtered_bookings,
             "count": len(filtered_bookings),
             "revenue": total_revenue,
@@ -142,7 +119,3 @@ async def admin_panel(request: Request):
 @app.get("/logout")
 async def logout():
     return RedirectResponse(url="/", status_code=302)
-
-
-
-
