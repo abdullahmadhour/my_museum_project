@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/abi/main.py"
+      "destination": "abi/main.py"
     }
   ]
 }
