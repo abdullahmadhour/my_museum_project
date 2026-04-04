@@ -64,7 +64,7 @@ async def read_root(request: Request):
     )
 
 # بدلاً من @app.post("/book/")
-@app.post("/book", response_class=HTMLResponse)
+@app.post("/booking", response_class=HTMLResponse) # غيرها لـ /booking
 async def book_ticket(
     request: Request,
     full_name: str = Form(...),
