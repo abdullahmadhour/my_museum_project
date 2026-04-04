@@ -9,22 +9,24 @@ import uuid
 app = FastAPI()
 
 # --- إعداد المسارات الديناميكية ---
-# نحدد مكان الملف الحالي
-CURRENT_FILE_PATH = Path(__file__).resolve()
+# نحدد مكان الملف الحالي بدقة
+current_file_path = Path(__file__).resolve()
 
-# نبحث عن مجلد المشروع الرئيسي (الذي يحتوي على static و templates)
-# إذا كان الملف داخل مجلد api، نرجع خطوة للخلف، وإذا كان في الجذر نستخدم مكانه
-if CURRENT_FILE_PATH.parent.name == "api":
-    BASE_DIR = CURRENT_FILE_PATH.parent.parent
+# نبحث عن مجلد المشروع الرئيسي
+# إذا كان الملف داخل مجلد api أو abi، نرجع خطوة للخلف لنجد static و templates
+if current_file_path.parent.name in ["api", "abi", "backend"]:
+    BASE_DIR = current_file_path.parent.parent
 else:
-    BASE_DIR = CURRENT_FILE_PATH.parent
+    BASE_DIR = current_file_path.parent
 
-# تحديد مسارات المجلدات بدقة
+# تحديد مسارات المجلدات بناءً على المجلد الرئيسي
 templates_dir = BASE_DIR / "templates"
 static_dir = BASE_DIR / "static"
 
-# طباعة المسارات في الـ Terminal للتأكد عند التشغيل (مفيد جداً للتصحيح)
+# طباعة المسارات في الـ Terminal (مفيد جداً للتأكد عند التشغيل على Vercel)
+print(f"--- Path Debugging ---")
 print(f"Base Directory: {BASE_DIR}")
+print(f"Templates Directory: {templates_dir}")
 print(f"Static Directory: {static_dir}")
 
 # التحقق من وجود المجلدات قبل محاولة تشغيلها لمنع الـ RuntimeError
@@ -32,7 +34,7 @@ if not static_dir.exists():
     print(f"⚠️ تحذير: مجلد static غير موجود في {static_dir}")
     static_dir.mkdir(parents=True, exist_ok=True)
 
-# تحميل القوالب والملفات الثابتة
+# تحميل القوالب والملفات الثابتة باستخدام المسارات التي حسبناها
 templates = Jinja2Templates(directory=str(templates_dir))
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
@@ -68,8 +70,11 @@ async def book_ticket(
     ticket_type: str = Form(...),
     ticket_count: int = Form(...)
 ):
+    # أسعار التذاكر
     prices = {"egyptian": 60, "foreign": 200, "student": 30}
     total_price = prices.get(ticket_type, 0) * ticket_count
+    
+    # توليد رقم تذكرة فريد واختصاره لـ 8 حروف
     ticket_id = str(uuid.uuid4())[:8].upper()
 
     new_booking = {
@@ -105,6 +110,7 @@ async def login(username: str = Form(...), password: str = Form(...)):
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_panel(request: Request):
+    # حماية بسيطة للوحة الإدارة
     if request.query_params.get("auth") != "1":
         return RedirectResponse(url="/login", status_code=302)
     
@@ -125,4 +131,8 @@ async def admin_panel(request: Request):
 
 @app.get("/logout")
 async def logout():
-    return RedirectResponse(url="/", status_code=302)git add .
+    return RedirectResponse(url="/", status_code=302)
+
+
+
+
